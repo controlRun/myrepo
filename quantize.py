@@ -163,45 +163,43 @@ class B1Conv2d(nn.Conv2d):
         ba = self.b1activation(a)
         output = F.conv2d(ba, bw, self.bias,
                           self.stride, self.padding,
-OAOAOA                          self.dilation, self.groups)
+                          self.dilation, self.groups)
         return output
     
     
 class B2Conv2d(nn.Conv2d):
-OAOAOA
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True):
         super(B2Conv2d, self).__init__(in_channels, out_channels, kernel_size, stride, padding, dilation, groups, bias)
         self.weight_quantizer = B2WeightQuantizer()
         #self.ba_hook = []
         #self.bw_hook = []
         
-OAOAOA    def b2activation(self, input):
+    def b2activation(self, input):
         output = B2ActQuantize.apply(input)
         return output
     
-OAOAOA    def forward(self, input):
+    def forward(self, input):
         w = self.weight
         bw = self.weight_quantizer(w)
         a = input
         ba = self.b2activation(a)
-OAOAOA        
-OAOAOA        #self.ba_hook.append(ba)
-        #self.bw_hook.append(bw)
         
-OAOAOA        output = F.conv2d(ba, bw, self.bias,
-                          self.stride, self.padding,
-OAOAOA                          self.dilation, self.groups)
 
-OAOAOA        return output    
-OAOAOA    
+        
+        output = F.conv2d(ba, bw, self.bias,
+                          self.stride, self.padding,
+                          self.dilation, self.groups)
+
+        return output    
+    
     
 def add_quant_op(module):
     for name, child in module.named_children():
-OAOAOA        if isinstance(child, nn.Conv2d):
+        if isinstance(child, nn.Conv2d):
             if name in []:
                 if child.bias is not None:
                     quant_conv = B1Conv2d(child.in_channels, child.out_channels,
-OAOAOA                                             child.kernel_size, stride=child.stride,
+                                             child.kernel_size, stride=child.stride,
                                              padding=child.padding, dilation=child.dilation,
                                              groups=child.groups, bias=True)
                     quant_conv.bias.data = child.bias
